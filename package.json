@@ -1,0 +1,16 @@
+{
+  "name": "nodebang",
+  "version": "1.0.0",
+  "description": "big bang moment of the project",
+  "main": "nodebang.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "nodebang": "nodebang.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^8.0.1"
+  }
+}
