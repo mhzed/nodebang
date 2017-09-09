@@ -2,7 +2,7 @@
 
 var fs = require("fs")
 var path = require("path")
-
+var execSync = require("child_process").execSync
 const yargs = require("yargs")
   .usage("Usage: $0 [opitons]")
   .option('typescript', {
@@ -38,6 +38,12 @@ const bangFile = (fname, fcontent) => {
     }
   }
 }
+const banDir = (dname) => {
+  "use strict";
+  if (!fs.existsSync(dname)) {
+    fs.mkdirSync(dname);
+  }
+}
 
 bangFile(".gitignore", "*.map\nnode_modules/\nbower_components/");
 bangFile(".npmignore", "*.map\n*.coffee\ntest/\nnode_modules/\nbower_components/");
@@ -54,6 +60,7 @@ if (argv.typescript) {
     "target": "es6",
     "moduleResolution": "node",
     "module": "commonjs",
+    "typeRoots": ["node_modules/@types"],
     "inlineSourceMap" : true
     }
   }
@@ -97,14 +104,29 @@ if (argv.typescript) {
           "semi": 0,
           "quotes": 0
       }
-  
     };
     `
   );
 }
 
 if (!fs.existsSync("package.json")) {
-  console.log("You need to run: npm init");
+  console.log("npm init ...")
+  execSync("npm init --yes");
 }
 
+banDir("src");
+banDir("test");
+
+if (argv.typescript) {
+  bangFile("index.ts", "");
+  console.log("Installing typescript packages...");
+  if (!fs.existsSync("node_modules/typescript")) {
+    execSync("npm install typescript --save-dev");
+  }
+  if (!fs.existsSync("node_modules/@types/node")) {
+    execSync("npm install @types/node --save-dev");
+  }
+} else {
+  bangFile("index.js", "");
+}
 console.log("Done");
