@@ -126,7 +126,18 @@ if (argv.typescript) {
   if (!fs.existsSync("node_modules/@types/node")) {
     execSync("npm install @types/node --save-dev");
   }
+  console.log("Installing nodeunit...");
+  if (!fs.existsSync("node_modules/nodeunit")) {
+    execSync("npm install nodeunit --save-dev");
+  }
+  if (!fs.existsSync("node_modules/@types/nodeunit")) {
+    execSync("npm install @types/nodeunit --save-dev");
+  }
 } else {
   bangFile("index.js", "");
+  console.log("Installing nodeunit...");
+  if (!fs.existsSync("node_modules/nodeunit")) {
+    execSync("npm install nodeunit --save-dev");
+  }
 }
 console.log("Done");
