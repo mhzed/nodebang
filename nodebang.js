@@ -46,7 +46,7 @@ const banDir = (dname) => {
 }
 
 bangFile(".gitignore", "*.map\nnode_modules/\nbower_components/");
-bangFile(".npmignore", "*.map\n*.coffee\ntest/\nnode_modules/\nbower_components/");
+bangFile(".npmignore", "*.map\ntest/\nnode_modules/\nbower_components/");
 bangFile("README.md", () => {
   "use strict";
   let name = path.basename(process.cwd());
