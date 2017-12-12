@@ -26,8 +26,6 @@ if (argv.help) {
   process.exit(0)
 }
 
-bangFile('.gitignore', '*.map\nnode_modules/\nbower_components/\ndist/')
-bangFile('.npmignore', '*.map\ntest/\nnode_modules/\nbower_components/\ndist/')
 bangFile('README.md', () => {
   'use strict'
   let name = path.basename(process.cwd())
@@ -43,6 +41,9 @@ banDir('test')
 bangPackage({private: true})
 
 if (argv.typescript) {
+  bangFile('.gitignore', '**/*.map\n**/*.js\nnode_modules/\nbower_components/\ndist/')
+  bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')
+
   console.log('Initializing for typescript')
   bangFile('tsconfig.json', `
   {
@@ -84,6 +85,8 @@ if (argv.typescript) {
   bangModules(['typescript', '@types/node', 'nodeunit', '@types/nodeunit', 'tslint'], 'dev')
   bangPackage({scripts: {lint: 'tslint --project .'}})
 } else {
+  bangFile('.gitignore', 'node_modules/\nbower_components/\ndist/')
+  bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')  
   console.log('Initializing for javascript')
   bangFile('.eslintrc.js', `
     module.exports = {
