@@ -115,12 +115,11 @@ if (argv.react && argv.typescript) {
   <html>
       <head>
           <meta charset="UTF-8" />
-          <title>Hello world!</title>
+          <title>Nodebang app</title>
       </head>
       <body>
           <div id="main"></div>
-          <!-- Dependencies
-          <script src="./node_modules/react/umd/react.development.js"></script> -->
+          <!-- Dependencies -->
           <!-- Main -->
           <script src="bundle.js"></script>
       </body>
@@ -131,7 +130,7 @@ if (argv.react && argv.typescript) {
   import * as ReactDOM from "react-dom";
   import { App } from "./app";
   ReactDOM.render(
-      <App title="bigbang" />,
+      <App title="Nodebang app" />,
       document.getElementById("main")
   );
   `)
