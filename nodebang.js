@@ -1,59 +1,49 @@
 #!/usr/bin/env node
 
-var fs = require("fs")
-var path = require("path")
-var execSync = require("child_process").execSync
-const yargs = require("yargs")
-  .usage("Usage: $0 [opitons]")
+var fs = require('fs')
+var path = require('path')
+const execSync = require('child_process').execSync
+var {bangFile, banDir, bangModules, bangPackage} = require('./util')
+
+const yargs = require('yargs')
+  .usage('Usage: $0 [opitons]')
   .option('typescript', {
     alias: 't',
     describe: 'init for typescript project'
+  })
+  .option('react', {
+    alias: 'r',
+    describe: 'install react'
   })
   .option('help', {
     alias: 'h',
     describe: 'print help'
   })
-  .help();
-const argv = yargs.argv;
-
+  .help()
+const argv = yargs.argv
 if (argv.help) {
-  console.log(yargs.help());
-  process.exit(0);
+  console.log(yargs.help())
+  process.exit(0)
 }
 
-if (argv.typescript) {
-  console.log("Initializing for typescript");
-} else {
-  console.log("Initializing for javascript");
-}
-
-const bangFile = (fname, fcontent) => {
-  "use strict";
-  if (!fs.existsSync(fname)) {
-    console.log("Creating " + fname);
-    if (typeof fcontent === 'function') {
-      fs.writeFileSync(fname, fcontent(), "utf-8");
-    } else {
-      fs.writeFileSync(fname, fcontent, "utf-8");
-    }
-  }
-}
-const banDir = (dname) => {
-  "use strict";
-  if (!fs.existsSync(dname)) {
-    fs.mkdirSync(dname);
-  }
-}
-
-bangFile(".gitignore", "*.map\nnode_modules/\nbower_components/");
-bangFile(".npmignore", "*.map\ntest/\nnode_modules/\nbower_components/");
-bangFile("README.md", () => {
-  "use strict";
-  let name = path.basename(process.cwd());
-  return name + "\n--------\n\n";
+bangFile('.gitignore', '*.map\nnode_modules/\nbower_components/\ndist/')
+bangFile('.npmignore', '*.map\ntest/\nnode_modules/\nbower_components/\ndist/')
+bangFile('README.md', () => {
+  'use strict'
+  let name = path.basename(process.cwd())
+  return name + '\n--------\n\n'
 })
+if (!fs.existsSync('package.json')) {
+  console.log('npm init ...')
+  execSync('npm init --yes')
+}
+banDir('src')
+banDir('test')
+
+bangPackage({private: true})
 
 if (argv.typescript) {
+  console.log('Initializing for typescript')
   bangFile('tsconfig.json', `
   {
   "compilerOptions": {
@@ -61,10 +51,11 @@ if (argv.typescript) {
     "moduleResolution": "node",
     "module": "commonjs",
     "typeRoots": ["node_modules/@types"],
-    "inlineSourceMap" : true
+    "sourceMap" : true,
+    "jsx": "react"
     }
   }
-  `);
+  `)
   bangFile('tslint.json', `
   {
     "rules": {
@@ -88,9 +79,13 @@ if (argv.typescript) {
       }
     }
   }  
-  `);
+  `)
+  bangFile('index.ts', '')
+  bangModules(['typescript', '@types/node', 'nodeunit', '@types/nodeunit', 'tslint'], 'dev')
+  bangPackage({scripts: {lint: 'tslint --project .'}})
 } else {
-  bangFile(".eslintrc.js", `
+  console.log('Initializing for javascript')
+  bangFile('.eslintrc.js', `
     module.exports = {
       "extends": "standard",
       "installedESLint": true,
@@ -99,45 +94,63 @@ if (argv.typescript) {
           "promise"
       ],
       "rules": {
-          "space-before-function-paren": 0,
-          "one-var" : 0,
-          "semi": 0,
-          "quotes": 0
+          "one-var" : 0
       }
     };
     `
+  )
+  bangFile('index.js', '')
+  bangModules(['eslint', 'nodeunit'], 'dev')
+}
+
+if (argv.react && argv.typescript) {
+  console.log('Installing react for typescript ....')
+  bangModules(['react', 'react-dom'])
+  bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom', 'awesome-typescript-loader',
+    'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'file-loader', 'url-loader', 'style-loader', 'css-loader',
+    'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash'], 'dev')
+
+  bangFile('src/index.html', `
+  <!DOCTYPE html>
+  <html>
+      <head>
+          <meta charset="UTF-8" />
+          <title>Hello world!</title>
+      </head>
+      <body>
+          <div id="main"></div>
+          <!-- Dependencies
+          <script src="./node_modules/react/umd/react.development.js"></script> -->
+          <!-- Main -->
+          <script src="bundle.js"></script>
+      </body>
+  </html>  
+  `)
+  bangFile('src/index.tsx', `
+  import * as React from "react";
+  import * as ReactDOM from "react-dom";
+  import { App } from "./app";
+  ReactDOM.render(
+      <App title="bigbang" />,
+      document.getElementById("main")
   );
+  `)
+  bangFile('src/app.tsx', `
+  import * as React from "react";
+  export interface AppProps { title: string; }
+  export class App extends React.Component<AppProps, {}> {
+      render() {
+          return <h1>App {this.props.title}!</h1>;
+      }
+  }
+  `)
+  bangFile('webpack.config.js', fs.readFileSync(path.resolve(__dirname, 'res/webpack.config.ts')))
+  bangPackage({
+    scripts: {
+      build: 'webpack --devtool nosources-source-map',
+      'dev-serve': 'webpack-dev-server --inline --content-base src/'
+    }
+  })
 }
 
-if (!fs.existsSync("package.json")) {
-  console.log("npm init ...")
-  execSync("npm init --yes");
-}
-
-banDir("src");
-banDir("test");
-
-if (argv.typescript) {
-  bangFile("index.ts", "");
-  console.log("Installing typescript packages...");
-  if (!fs.existsSync("node_modules/typescript")) {
-    execSync("npm install typescript --save-dev");
-  }
-  if (!fs.existsSync("node_modules/@types/node")) {
-    execSync("npm install @types/node --save-dev");
-  }
-  console.log("Installing nodeunit...");
-  if (!fs.existsSync("node_modules/nodeunit")) {
-    execSync("npm install nodeunit --save-dev");
-  }
-  if (!fs.existsSync("node_modules/@types/nodeunit")) {
-    execSync("npm install @types/nodeunit --save-dev");
-  }
-} else {
-  bangFile("index.js", "");
-  console.log("Installing nodeunit...");
-  if (!fs.existsSync("node_modules/nodeunit")) {
-    execSync("npm install nodeunit --save-dev");
-  }
-}
-console.log("Done");
+console.log('Done')
