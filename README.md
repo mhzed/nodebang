@@ -25,3 +25,7 @@ Initialize a javascript project:
 Initialize a typescript project:
 
     nodebang -t .
+
+Initialize a typescript + react + webpack project:
+
+    nodebang -tr .
