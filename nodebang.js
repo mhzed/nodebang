@@ -45,18 +45,33 @@ if (argv.typescript) {
   bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')
 
   console.log('Initializing for typescript')
-  bangFile('tsconfig.json', `
-  {
-  "compilerOptions": {
-    "target": "es6",
-    "moduleResolution": "node",
-    "module": "commonjs",
-    "typeRoots": ["node_modules/@types"],
-    "sourceMap" : true,
-    "jsx": "react"
+  if (argv.react) {
+    bangFile('tsconfig.json', `
+    {
+    "compilerOptions": {
+      "target": "es5",
+      "moduleResolution": "node",
+      "module": "commonjs",
+      "typeRoots": ["node_modules/@types"],
+      "sourceMap" : true,
+      "jsx": "react",
+      "lib": ["dom", "es5","es2015.promise"]
+      }
     }
+    `)
+  } else {
+    bangFile('tsconfig.json', `
+    {
+    "compilerOptions": {
+      "target": "es6",
+      "moduleResolution": "node",
+      "module": "commonjs",
+      "typeRoots": ["node_modules/@types"],
+      "sourceMap" : true,
+      }
+    }
+    `)
   }
-  `)
   bangFile('tslint.json', `
   {
     "rules": {
@@ -146,7 +161,7 @@ if (argv.react && argv.typescript) {
       }
   }
   `)
-  bangFile('webpack.config.js', fs.readFileSync(path.resolve(__dirname, 'res/webpack.config.ts')))
+  bangFile('webpack.config.ts', fs.readFileSync(path.resolve(__dirname, 'res/webpack.config.ts')))
   bangPackage({
     scripts: {
       'lint': 'tslint --project .',
