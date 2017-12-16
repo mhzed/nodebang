@@ -39,9 +39,13 @@ module.exports.bangModules = (modules, mode) => {
     execSync(cmd)
   }
 }
+module.exports.bangJSON = (file, props) => {
+  let obj = {}
+  if (fs.existsSync(file)) { obj = JSON.parse(fs.readFileSync(file)) }
+  merge(obj, props)
+  fs.writeFileSync(file, JSON.stringify(obj, null, '  '))
+}
 
 module.exports.bangPackage = (props) => {
-  const mpackage = JSON.parse(fs.readFileSync('./package.json'))
-  merge(mpackage, props)
-  fs.writeFileSync('./package.json', JSON.stringify(mpackage, null, '  '))
+  module.exports.bangJSON('./package.json', props)
 }

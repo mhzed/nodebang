@@ -3,8 +3,11 @@
 var fs = require('fs')
 var path = require('path')
 const execSync = require('child_process').execSync
-var {bangFile, banDir, bangModules, bangPackage} = require('./util')
+var {bangFile, banDir, bangModules, bangPackage, bangJSON} = require('./util')
 
+const loadFile = (relpath) => {
+  return fs.readFileSync(path.resolve(__dirname, relpath))
+}
 const yargs = require('yargs')
   .usage('Usage: $0 [opitons]')
   .option('typescript', {
@@ -45,123 +48,44 @@ if (argv.typescript) {
   bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')
 
   console.log('Initializing for typescript')
-  if (argv.react) {
-    bangFile('tsconfig.json', `
-    {
-    "compilerOptions": {
-      "target": "es5",
-      "moduleResolution": "node",
-      "module": "commonjs",
-      "typeRoots": ["node_modules/@types"],
-      "sourceMap" : true,
-      "jsx": "react",
-      "lib": ["dom", "es5","es2015.promise"]
-      }
-    }
-    `)
-  } else {
-    bangFile('tsconfig.json', `
-    {
-    "compilerOptions": {
-      "target": "es6",
-      "moduleResolution": "node",
-      "module": "commonjs",
-      "typeRoots": ["node_modules/@types"],
-      "sourceMap" : true,
-      }
-    }
-    `)
-  }
-  bangFile('tslint.json', `
-  {
-    "rules": {
-      "max-line-length": {
-        "options": [
-          120
-        ]
-      },
-      "new-parens": true,
-      "no-arg": true,
-      "no-bitwise": true,
-      "no-conditional-assignment": true,
-      "no-consecutive-blank-lines": false,
-      "no-console": false
-    },
-    "jsRules": {
-      "max-line-length": {
-        "options": [
-          120
-        ]
-      }
-    }
-  }  
-  `)
+  bangFile('tsconfig.json', loadFile('res/tsconfig.json'))
+  bangFile('tslint.json', loadFile('res/tslint.json'))
+
   bangFile('index.ts', '')
   bangModules(['typescript', '@types/node', 'nodeunit', '@types/nodeunit', 'tslint'], 'dev')
   bangPackage({scripts: {lint: 'tslint --project .'}})
 } else {
   bangFile('.gitignore', 'node_modules/\nbower_components/\ndist/')
-  bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')  
+  bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')
   console.log('Initializing for javascript')
-  bangFile('.eslintrc.js', `
-    module.exports = {
-      "extends": "standard",
-      "installedESLint": true,
-      "plugins": [
-          "standard",
-          "promise"
-      ],
-      "rules": {
-          "one-var" : 0
-      }
-    };
-    `
-  )
+  bangFile('.eslintrc.js', loadFile('res/eslintrc.js'))
   bangFile('index.js', '')
   bangModules(['eslint', 'nodeunit'], 'dev')
 }
 
 if (argv.react && argv.typescript) {
   console.log('Installing react for typescript ....')
+  bangJSON('tsconfig.json',
+    {
+      'compilerOptions': {
+        'target': 'es5',
+        'moduleResolution': 'node',
+        'module': 'commonjs',
+        'sourceMap': true,
+        'jsx': 'react',
+        'lib': ['dom', 'es5', 'es2015.promise']
+      }
+    }
+  )
   bangModules(['react', 'react-dom'])
   bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom', 'awesome-typescript-loader',
     'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'file-loader', 'url-loader', 'style-loader', 'css-loader',
     'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash'], 'dev')
 
-  bangFile('src/index.html', `
-  <!DOCTYPE html>
-  <html>
-      <head>
-          <meta charset="UTF-8" />
-          <title>Nodebang app</title>
-      </head>
-      <body>
-          <div id="main"></div>
-          <!-- Dependencies -->
-          <!-- Main -->
-          <script src="bundle.js"></script>
-      </body>
-  </html>  
-  `)
-  bangFile('src/index.tsx', `
-  import * as React from "react";
-  import * as ReactDOM from "react-dom";
-  import { App } from "./app";
-  ReactDOM.render(
-      <App title="Nodebang app" />,
-      document.getElementById("main")
-  );
-  `)
-  bangFile('src/app.tsx', `
-  import * as React from "react";
-  export interface AppProps { title: string; }
-  export class App extends React.Component<AppProps, {}> {
-      render() {
-          return <h1>App {this.props.title}!</h1>;
-      }
-  }
-  `)
-  bangFile('webpack.config.ts', fs.readFileSync(path.resolve(__dirname, 'res/webpack.config.ts')))
+  bangFile('src/index.html', loadFile('res/ts-react/index.html'))
+  bangFile('src/index.tsx', loadFile('res/ts-react/index.tsx'))
+  bangFile('src/app.tsx', loadFile('res/ts-react/app.tsx'))
+  bangFile('webpack.config.ts', loadFile('res/ts-react/webpack.config.ts'))
   bangPackage({
     scripts: {
       'lint': 'tslint --project .',
