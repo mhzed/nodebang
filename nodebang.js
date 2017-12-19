@@ -92,7 +92,7 @@ if (argv.react && argv.typescript) {
       'buildall': 'webpack --env build=dev,cdn,release,release-cdn',
       'build': 'webpack --env build=release',
       'cleanbuild': 'rm -rf ./dist',
-      'dev-serve': 'webpack-dev-server --inline --content-base src/'
+      'serve': 'webpack-dev-server --inline --content-base src/'
     }
   })
 }
