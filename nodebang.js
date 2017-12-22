@@ -16,7 +16,7 @@ const yargs = require('yargs')
   })
   .option('react', {
     alias: 'r',
-    describe: 'install react'
+    describe: 'install react for typescript'
   })
   .option('help', {
     alias: 'h',
@@ -77,10 +77,10 @@ if (argv.react && argv.typescript) {
       }
     }
   )
-  bangModules(['react', 'react-dom'])
+  bangModules(['react', 'react-dom', 'react-router-dom'])
   bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom', 'awesome-typescript-loader',
     'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'file-loader', 'url-loader', 'style-loader', 'css-loader',
-    'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash'], 'dev')
+    'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash', '@types/lodash'], 'dev')
 
   bangFile('src/index.html', loadFile('res/ts-react/index.html'))
   bangFile('src/index.tsx', loadFile('res/ts-react/index.tsx'))

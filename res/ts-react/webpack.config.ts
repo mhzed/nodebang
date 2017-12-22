@@ -26,7 +26,17 @@ const CdnExternals = [
     module: 'lodash',
     global: '_',      // the "imported as" variable in your code, installed by js below as global var 
     url: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'  // the cnd url
-  }
+  },
+  {
+    module: 'react',    // node_module name
+    global: 'React',    // global var name
+    url: 'https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.production.min.js'
+  },
+  {
+    module: 'react-dom',
+    global: 'ReactDOM',
+    url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.production.min.js'
+  }  
 ]
 
 let NullCssLoaders = [];
