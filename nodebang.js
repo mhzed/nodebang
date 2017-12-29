@@ -53,7 +53,10 @@ if (argv.typescript) {
 
   bangFile('index.ts', '')
   bangModules(['typescript', '@types/node', 'nodeunit', '@types/nodeunit', 'tslint'], 'dev')
-  bangPackage({scripts: {lint: 'tslint --project .'}})
+  bangPackage({scripts: {
+    lint: 'tslint --project .',
+    tswatch: "tsc --watch"
+  }})
 } else {
   bangFile('.gitignore', 'node_modules/\nbower_components/\ndist/')
   bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')

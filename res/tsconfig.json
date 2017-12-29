@@ -4,7 +4,8 @@
     "moduleResolution": "node",
     "module": "commonjs",
     "typeRoots": ["node_modules/@types"],
-    "sourceMap" : true
+    "sourceMap" : true,
+    "noUnusedLocals": true
   }
 }
 
