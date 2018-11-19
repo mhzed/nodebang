@@ -44,7 +44,7 @@ banDir('test')
 bangPackage({private: true})
 
 if (argv.typescript) {
-  bangFile('.gitignore', '**/*.map\n**/*.js\nnode_modules/\nbower_components/\ndist/')
+  bangFile('.gitignore', '.nyc_output\ncoverage/\nnode_modules/\nbower_components/\ndist/')
   bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')
 
   console.log('Initializing for typescript')
@@ -52,8 +52,11 @@ if (argv.typescript) {
   bangFile('tslint.json', loadFile('res/tslint.json'))
 
   bangFile('index.ts', '')
-  bangModules(['typescript', '@types/node', 'nodeunit', '@types/nodeunit', 'tslint'], 'dev')
+  bangModules(['typescript', '@types/node', 'ts-node', 'mocha', '@types/mocha', 
+    'source-map-support', 'tslint', 'nyc', 'should', '@types/shoud'], 'dev')
   bangPackage({scripts: {
+    test: "nyc mocha --require ts-node/register test/**/*.ts",
+    testcover: "nyc --reporter=lcov mocha --require ts-node/register test/**/*.ts",
     lint: 'tslint --project .',
     tswatch: "tsc --watch"
   }})
@@ -63,7 +66,7 @@ if (argv.typescript) {
   console.log('Initializing for javascript')
   bangFile('.eslintrc.js', loadFile('res/eslintrc.js'))
   bangFile('index.js', '')
-  bangModules(['eslint', 'nodeunit'], 'dev')
+  bangModules(['eslint', 'mocha'], 'dev')
 }
 
 if (argv.react && argv.typescript) {
