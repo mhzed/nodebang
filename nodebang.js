@@ -105,7 +105,6 @@ if (argv.react && argv.typescript) {
       'serve': 'webpack-dev-server --inline --content-base src/'
     }
   })
-  console.log('"npm install" to install dependencies.')
   console.log('"npm run serve" to start dev server.')
 }
 
