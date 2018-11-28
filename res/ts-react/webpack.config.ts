@@ -1,73 +1,44 @@
 import * as webpack from 'webpack';
 import * as UglifyJsPlugin from 'uglifyjs-webpack-plugin';
-import * as CopyWebpackPlugin from 'copy-webpack-plugin';
+import * as HtmlWebpackPlugin from 'html-webpack-plugin';
 import * as _ from 'lodash';
+import * as Path from 'path';
+import * as Glob from 'fast-glob';
+import * as Fs from "fs-extra";
+import * as DynamicCdnWebpackPlugin from 'dynamic-cdn-webpack-plugin';
 
 /** 
  * Examples: 
  *    webpack -env build=dev
  *    webpack -env build=dev,release
  * 
- * dev: development build, bundle all src in original format
- * release: production build, output js is uglified and src removed from sourcemap
- * cdn: content devliery network build: externals are excluded from build, you must properly
- *      define "CdnExternals" below 
- * release-cdn: release + cdn
+ * dev: development build, bundle all src in original format, using cdn
+ * release: production build, output js is uglified and src removed from sourcemap, using cdd
+ * *-full: same as above but without using cdn
 */
-type Target = 'dev' | 'cdn' | 'release' | 'release-cdn'
+type Target = 'dev' | 'release' | 'dev-full' | 'release-full'
 
-const CdnExternals = [
-  {
-    module: 'font-awesome/css/font-awesome.css',  // the import module name in js
-    global: undefined,  // not applicable for css
-    url: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css' // cdn url
-  },
-  {
-    module: 'lodash',
-    global: '_',      // the "imported as" variable in your code, installed by js below as global var 
-    url: 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'  // the cnd url
-  },
-  {
-    module: 'react',    // node_module name
-    global: 'React',    // global var name
-    url: 'https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.production.min.js'
-  },
-  {
-    module: 'react-dom',
-    global: 'ReactDOM',
-    url: 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.production.min.js'
-  }  
-]
+const SrcDir = Path.join(__dirname, "./src");
+const DistDir = Path.join(__dirname, "./dist");
+const CommonChunks = ['common']
+const DefaultHtmlTemplate = Path.join(SrcDir, "assets", "index.html");
 
-let NullCssLoaders = [];
-
-// webpack.Configuration.ExternalsElement: excluded javascript modules
-const Externals: webpack.ExternalsElement = _.reduce(CdnExternals, (acc, val)=>{
-  if (!/\.s?css$/i.test(val.module))  // ignore .css or .scss in 'externals'
-    acc[val.module] = val.global
-  else    // instead add css to null loaders in cdn build
-    NullCssLoaders.push({test: new RegExp(_.escapeRegExp(val.module)), use: 'null-loader'})
-  return acc;
-}, {});
-
-// for transform index.html: embed external stylesheets and js files
-const cdnTransform = (content: Buffer, path: string) => {
-  if (/index\.html$/i.test(path)) 
-    return content.toString().replace(/<!--\s*Dependencies\s*-->/i,
-      _.join(_.map(CdnExternals, (m)=>{
-        if (/\.s?css$/i.test(m.module))
-          return `<link rel="stylesheet" type="text/css" href="${m.url}">`
-        else
-          return `<script src="${m.url}"></script>`
-      }), "\n"));
-  else
-    return content
+// config merge helper
+const cfgMerge = (target, ...src) => {
+  return _.mergeWith(target, ...src, (dst, src) =>  {
+    if (_.isArray(dst)) {
+      return dst.concat(src)
+    } else return undefined
+  });
 }
+
+// the common configuration
 const BaseConfig: webpack.Configuration = {
-  entry: "./src/index.tsx",
+  entry: {
+    "common": Path.join(SrcDir, "common.tsx"),
+    "index": Path.join(SrcDir, "index.tsx"),    
+  },
   output: {
-    filename: "bundle.js",
-    //path
   },
   //devtool,
   resolve: {
@@ -85,72 +56,98 @@ const BaseConfig: webpack.Configuration = {
       { test: /\.(ttf|eot|svg|png|jp(e*)g)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader?limit=2000" },
     ],
   },
-  // plugins,
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: DefaultHtmlTemplate,
+      chunks: CommonChunks.concat(['index']),
+    })
+  ]
   //externals,
 }
 
-const merge = (target, ...src) => {
-  return _.mergeWith(target, ...src, (dst, src) =>  {
-    if (_.isArray(dst)) {
-      return dst.concat(src)
-    } else return undefined
+// scan for all page*.tsx fiels in src/ dir, set as entries (to be compiled) and also generate a html file for each
+async function injectPages(config: webpack.Configuration): Promise<webpack.Configuration> {
+  let pageFiles = await Glob(Path.join(SrcDir, "**/page*.tsx"));
+
+  let pageEntries = pageFiles.reduce((entries, _f)=> {
+    let f = _f.toString();
+    entries[Path.basename(f, ".tsx")] = f;  // page1: '/path/to/page1.tsx'
+    return entries;
+  }, {});
+  let pagePlugins = pageFiles.map((_f)=>{
+    let f = _f.toString();
+    let htmlf = f.slice(SrcDir.length+1).replace(/\.tsx$/i, ".html"); // where to place html in dist output
+    
+    let pluginCfg: any = {
+      chunks: CommonChunks.concat([Path.basename(f, ".tsx")]),
+      filename: htmlf
+    }
+
+    // if customized page template exists: name match in src/assets/, then use it, otherwise use fefault
+    let htmlTemplate = Path.join(SrcDir, 'assets', htmlf);
+    if (Fs.pathExistsSync(htmlTemplate)) { pluginCfg.template = htmlTemplate}
+    else { pluginCfg.template = DefaultHtmlTemplate}
+
+    return new HtmlWebpackPlugin(pluginCfg);
+  });
+  return cfgMerge({}, config, {
+    entry: pageEntries,
+    plugins: pagePlugins
   });
 }
-const createConfigFor = (target: Target): webpack.Configuration => {
-  switch (target) {
-    case 'dev':
-      return merge({}, BaseConfig, {
-        output: {path: __dirname + "/dist/dev"},
-        devtool: 'eval-source-map',
-        plugins: [new CopyWebpackPlugin(['src/index.html'])]        
-      });
-      
-    case 'cdn':
-      return merge({module: { rules: NullCssLoaders } }, BaseConfig, {
-        output: {path: __dirname + "/dist/cdn"},
-        devtool: 'source-map',
-        externals: Externals,
-        plugins: [
-          new CopyWebpackPlugin([{ from: 'src/index.html', to: '', transform: cdnTransform}])
-        ],
-      });
-    case 'release':
-      return merge({}, BaseConfig, {
-        output: {path: __dirname + "/dist/release"},
-        devtool: 'nosources-source-map',
-        plugins: [
-          new CopyWebpackPlugin(['src/index.html']),
-          new UglifyJsPlugin({
-            sourceMap: true,
-            uglifyOptions: {}
-          })]
-      });
-    case 'release-cdn':
-      return merge({module: { rules: NullCssLoaders } }, BaseConfig, {
-        output: {path: __dirname + "/dist/release-cdn"},
-        devtool: 'nosources-source-map',
-        plugins: [
-          new CopyWebpackPlugin([{ from: 'src/index.html', to: '', transform: cdnTransform}]),
-          new UglifyJsPlugin({
-            sourceMap: true,
-            uglifyOptions: {}
-          })
-        ],
-        externals: Externals
-      });    
-    default:
-      throw new Error(`Unknow build target ${target}`);
+
+const createConfigForTarget = (config: webpack.Configuration, target: Target): webpack.Configuration => {
+  let newConfig;
+  if (/^dev/.test(target)) {
+    newConfig = cfgMerge({}, config, {
+      mode: "development",
+      output: {path: Path.join(DistDir, target)},
+      devtool: 'eval-source-map',
+      plugins: [
+      ]
+    });
+  } else if (/^release/.test(target)) {
+    newConfig = cfgMerge({}, config, {
+      mode: "production",
+      output: {path: Path.join(DistDir, target)},
+      devtool: 'nosources-source-map',
+      plugins: [
+        new UglifyJsPlugin({
+          sourceMap: true,
+          uglifyOptions: {}
+        })]
+    });
+  } else {
+    throw new Error(`Unknow build target ${target}`);
   }
+  if (!/-full$/.test(target)) {
+    cfgMerge(newConfig, {
+      plugins: [
+        new DynamicCdnWebpackPlugin() // use cdn
+      ]  
+    })
+  }
+  return newConfig;
 }
 
-module.exports = (env, arg): Promise<webpack.Configuration[]> => {
-  return (async function() {
-    let targets = ['dev'];
-    let buildtarget = _.find(_.flatten([env]), (e) => /^build=/.test(e));
-    if (buildtarget) {
-      targets = /^build=(.+)$/.exec(buildtarget)[1].split(',');
-    }
-    let configs = targets.map((t: Target) => createConfigFor(t));
-    return configs;
-  })();
+async function main(env, arg): Promise<webpack.Configuration[]> {
+  let targets = ['dev'];
+  let buildtarget = _.find(_.flatten([env]), (e) => /^build=/.test(e));
+  if (buildtarget) {
+    targets = /^build=(.+)$/.exec(buildtarget)[1].split(',');
+  }
+  console.log("Building for targets " + targets);
+
+  // inject entries and html for page*.tsx
+  let config = await injectPages(BaseConfig);
+
+  // clean dist dir
+  for (let t of targets) {
+    await Fs.emptyDir(Path.join(DistDir, t));
+  }
+
+  // make configs
+  return targets.map((t: Target) => createConfigForTarget(config, t));
 }
+
+module.exports = main;
