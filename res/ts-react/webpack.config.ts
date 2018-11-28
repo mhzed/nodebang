@@ -20,8 +20,11 @@ type Target = 'dev' | 'release' | 'dev-full' | 'release-full'
 
 const SrcDir = Path.join(__dirname, "./src");
 const DistDir = Path.join(__dirname, "./dist");
-const CommonChunks = ['common']
 const DefaultHtmlTemplate = Path.join(SrcDir, "assets", "index.html");
+
+const cdnPlugin = new DynamicCdnWebpackPlugin({
+  resolver: require("module-to-cdn")
+}) // use cdn
 
 // config merge helper
 const cfgMerge = (target, ...src) => {
@@ -35,7 +38,6 @@ const cfgMerge = (target, ...src) => {
 // the common configuration
 const BaseConfig: webpack.Configuration = {
   entry: {
-    "common": Path.join(SrcDir, "common.tsx"),
     "index": Path.join(SrcDir, "index.tsx"),    
   },
   output: {
@@ -59,7 +61,7 @@ const BaseConfig: webpack.Configuration = {
   plugins: [
     new HtmlWebpackPlugin({
       template: DefaultHtmlTemplate,
-      chunks: CommonChunks.concat(['index']),
+      chunks: ['index'],
     })
   ]
   //externals,
@@ -79,7 +81,7 @@ async function injectPages(config: webpack.Configuration): Promise<webpack.Confi
     let htmlf = f.slice(SrcDir.length+1).replace(/\.tsx$/i, ".html"); // where to place html in dist output
     
     let pluginCfg: any = {
-      chunks: CommonChunks.concat([Path.basename(f, ".tsx")]),
+      chunks: [Path.basename(f, ".tsx")],
       filename: htmlf
     }
 
@@ -123,7 +125,7 @@ const createConfigForTarget = (config: webpack.Configuration, target: Target): w
   if (!/-full$/.test(target)) {
     cfgMerge(newConfig, {
       plugins: [
-        new DynamicCdnWebpackPlugin() // use cdn
+        cdnPlugin
       ]  
     })
   }

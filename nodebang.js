@@ -88,7 +88,6 @@ if (argv.react && argv.typescript) {
   bangFile('src/assets/index.html', loadFile('res/ts-react/index.html'))
   bangFile('src/index.tsx', loadFile('res/ts-react/index.tsx'))
   bangFile('src/app.tsx', loadFile('res/ts-react/app.tsx'))
-  bangFile('src/common.tsx', loadFile('res/ts-react/common.tsx'))
   bangFile('webpack.config.ts', loadFile('res/ts-react/webpack.config.ts'))
   bangPackage({
     scripts: {
