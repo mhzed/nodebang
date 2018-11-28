@@ -80,7 +80,7 @@ if (argv.react && argv.typescript) {
     }
   )
   bangModules(['react', 'react-dom', 'react-router-dom'])
-  bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom', 'awesome-typescript-loader',
+  bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom',  '@types/react-router-dom', 'awesome-typescript-loader',
     'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'webpack-cli', 'file-loader', 'url-loader', 'style-loader', 'css-loader',
     'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash', '@types/lodash',
     'babel-runtime', 'dynamic-cdn-webpack-plugin', 'module-to-cdn', 'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra'], 'dev')

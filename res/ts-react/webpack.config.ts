@@ -6,6 +6,7 @@ import * as Path from 'path';
 import * as Glob from 'fast-glob';
 import * as Fs from "fs-extra";
 import * as DynamicCdnWebpackPlugin from 'dynamic-cdn-webpack-plugin';
+import * as moduleToCdn from "module-to-cdn";
 
 /** 
  * Examples: 
@@ -22,9 +23,16 @@ const SrcDir = Path.join(__dirname, "./src");
 const DistDir = Path.join(__dirname, "./dist");
 const DefaultHtmlTemplate = Path.join(SrcDir, "assets", "index.html");
 
-const cdnPlugin = new DynamicCdnWebpackPlugin({
-  resolver: require("module-to-cdn")
-}) // use cdn
+interface CdnModule {name: String, var: String, url: String, version: String};
+const CdnPlugin = new DynamicCdnWebpackPlugin({
+  resolver: (moduleName:String, version: String, options: {env: "development" | "production"}) : CdnModule => {
+    let m: CdnModule = moduleToCdn(moduleName, version, options);
+    if (m == null) {
+        // add own overrides
+    }
+    return m;
+  }
+})
 
 // config merge helper
 const cfgMerge = (target, ...src) => {
@@ -125,7 +133,7 @@ const createConfigForTarget = (config: webpack.Configuration, target: Target): w
   if (!/-full$/.test(target)) {
     cfgMerge(newConfig, {
       plugins: [
-        cdnPlugin
+        CdnPlugin
       ]  
     })
   }
