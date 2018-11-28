@@ -29,12 +29,6 @@ if (argv.help) {
   process.exit(0)
 }
 
-bangFile('README.md', () => {
-  'use strict'
-  let name = path.basename(process.cwd())
-  let content = loadFile('res/ts-react/readme.md');
-  return name + '\n--------\n\n' + content;
-})
 if (!fs.existsSync('package.json')) {
   console.log('npm init ...')
   execSync('npm init --yes')
@@ -105,7 +99,21 @@ if (argv.react && argv.typescript) {
       'serve': 'webpack-dev-server --inline --content-base src/'
     }
   })
+  bangFile('README.md', () => {
+    'use strict'
+    let name = path.basename(process.cwd())
+    let content = loadFile('res/ts-react/readme.md');
+    return name + '\n--------\n\n' + content;
+  })
+  
   console.log('"npm run serve" to start dev server.')
+} else {
+  bangFile('README.md', () => {
+    'use strict'
+    let name = path.basename(process.cwd())
+    return name + '\n--------\n\n';
+  })
+  
 }
 
 console.log('Done')
