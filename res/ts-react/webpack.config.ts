@@ -23,27 +23,7 @@ const SrcDir = Path.join(__dirname, "./src");
 const DistDir = Path.join(__dirname, "./dist");
 const DefaultHtmlTemplate = Path.join(SrcDir, "assets", "index.html");
 
-interface CdnModule {name: String, var: String, url: String, version: String};
-const CdnPlugin = new DynamicCdnWebpackPlugin({
-  resolver: (moduleName:String, version: String, options: {env: "development" | "production"}) : CdnModule => {
-    let m: CdnModule = moduleToCdn(moduleName, version, options);
-    if (m == null) {
-        // add own overrides
-    }
-    return m;
-  }
-})
-
-// config merge helper
-const cfgMerge = (target, ...src) => {
-  return _.mergeWith(target, ...src, (dst, src) =>  {
-    if (_.isArray(dst)) {
-      return dst.concat(src)
-    } else return undefined
-  });
-}
-
-// the common configuration
+// the common base configuration
 const BaseConfig: webpack.Configuration = {
   entry: {
     "index": Path.join(SrcDir, "index.tsx"),    
@@ -75,6 +55,29 @@ const BaseConfig: webpack.Configuration = {
   //externals,
 }
 
+
+////////// CDN plugin
+interface CdnModule {name: string, var: string, url: string, version: string};
+const CdnPlugin = new DynamicCdnWebpackPlugin({
+  resolver: (moduleName:string, version: string, options: {env: "development" | "production"}) : CdnModule => {
+    let m: CdnModule = moduleToCdn(moduleName, version, options);
+    if (m == null) {
+        // add own cdn overrides.  However it's recommended to update module 'module-to-cdn' instead.
+    }
+    return m;
+  }
+})
+
+////////// config merge helper
+const cfgMerge = (target, ...src) => {
+  return _.mergeWith(target, ...src, (dst, src) =>  {
+    if (_.isArray(dst)) {
+      return dst.concat(src)
+    } else return undefined
+  });
+}
+
+///////// multi-page support
 // scan for all page*.tsx fiels in src/ dir, set as entries (to be compiled) and also generate a html file for each
 async function injectPages(config: webpack.Configuration): Promise<webpack.Configuration> {
   let pageFiles = await Glob(Path.join(SrcDir, "**/page*.tsx"));
@@ -106,6 +109,7 @@ async function injectPages(config: webpack.Configuration): Promise<webpack.Confi
   });
 }
 
+////////  Per build target configuration
 const createConfigForTarget = (config: webpack.Configuration, target: Target): webpack.Configuration => {
   let newConfig;
   if (/^dev/.test(target)) {
@@ -140,18 +144,19 @@ const createConfigForTarget = (config: webpack.Configuration, target: Target): w
   return newConfig;
 }
 
+///////// The main method
 async function main(env, arg): Promise<webpack.Configuration[]> {
-  let targets = ['dev'];
+  let targets = ['dev'];    // default target 'dev'
   let buildtarget = _.find(_.flatten([env]), (e) => /^build=/.test(e));
   if (buildtarget) {
     targets = /^build=(.+)$/.exec(buildtarget)[1].split(',');
   }
   console.log("Building for targets " + targets);
 
-  // inject entries and html for page*.tsx
+  // inject configuration for multipe page entries
   let config = await injectPages(BaseConfig);
 
-  // clean dist dir
+  // clean dist target dir
   for (let t of targets) {
     await Fs.emptyDir(Path.join(DistDir, t));
   }

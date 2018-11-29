@@ -83,7 +83,7 @@ if (argv.react && argv.typescript) {
   bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom',  '@types/react-router-dom', 'awesome-typescript-loader',
     'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'webpack-cli', 'file-loader', 'url-loader', 'style-loader', 'css-loader',
     'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash', '@types/lodash',
-    'babel-runtime', 'dynamic-cdn-webpack-plugin', 'module-to-cdn', 'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra'], 'dev')
+    'babel-runtime', 'dynamic-cdn-webpack-plugin', 'mhzed/module-to-cdn', 'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra'], 'dev')
 
   bangFile('src/assets/index.html', loadFile('res/ts-react/index.html'))
   bangFile('src/index.tsx', loadFile('res/ts-react/index.tsx'))
