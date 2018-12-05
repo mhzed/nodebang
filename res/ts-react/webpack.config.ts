@@ -1,5 +1,4 @@
 import * as webpack from 'webpack';
-import * as UglifyJsPlugin from 'uglifyjs-webpack-plugin';
 import * as HtmlWebpackPlugin from 'html-webpack-plugin';
 import * as _ from 'lodash';
 import * as Path from 'path';
@@ -7,6 +6,7 @@ import * as Glob from 'fast-glob';
 import * as Fs from "fs-extra";
 import * as DynamicCdnWebpackPlugin from 'dynamic-cdn-webpack-plugin';
 import * as moduleToCdn from "module-to-cdn";
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 /** 
  * Examples: 
@@ -36,9 +36,7 @@ const BaseConfig: webpack.Configuration = {
   },
   module: {
     rules: [
-      // All files with a '.ts' or '.tsx' extension will be handled by 'awesome-typescript-loader'.
-      { test: /\.tsx?$/, use: "awesome-typescript-loader" },
-      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+      { test: /\.tsx?$/, use: "ts-loader" },
       { enforce: "pre", test: /\.js$/, use: "source-map-loader" },
       { test: /\.(s*)css$/, use: [ 'style-loader', 'css-loader','sass-loader' ] },
       { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, 
@@ -130,10 +128,7 @@ const createConfigForTarget = (config: webpack.Configuration, target: Target): w
       output: {path: Path.join(DistDir, target)},
       devtool: 'nosources-source-map',
       plugins: [
-        new UglifyJsPlugin({
-          sourceMap: true,
-          uglifyOptions: {}
-        })]
+      ]
     });
   } else {
     throw new Error(`Unknow build target ${target}`);
@@ -159,6 +154,9 @@ async function main(env, arg): Promise<webpack.Configuration[]> {
 
   // inject configuration for multipe page entries
   let config = await injectPages(BaseConfig);
+  if (arg.analyze) {
+    config.plugins.push(new BundleAnalyzerPlugin());
+  }
 
   // clean dist target dir
   for (let t of targets) {

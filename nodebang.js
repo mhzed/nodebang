@@ -70,20 +70,21 @@ if (argv.react && argv.typescript) {
   bangJSON('tsconfig.json',
     {
       'compilerOptions': {
-        'target': 'es5',
+        'target': 'es6',
         'moduleResolution': 'node',
         'module': 'commonjs',
         'sourceMap': true,
         'jsx': 'react',
-        'lib': ['dom', 'es5', 'es2015.promise']
+        'lib': ['dom', 'es6']
       }
     }
   )
   bangModules(['react', 'react-dom', 'react-router-dom'])
-  bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom',  '@types/react-router-dom', 'awesome-typescript-loader',
+  bangModules(['webpack', '@types/webpack', 'ts-node', '@types/react', '@types/react-dom',  '@types/react-router-dom', 'ts-loader',
     'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'webpack-cli', 'file-loader', 'url-loader', 'style-loader', 'css-loader',
     'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 'copy-webpack-plugin', 'lodash', '@types/lodash',
-    'babel-runtime', 'dynamic-cdn-webpack-plugin', 'mhzed/module-to-cdn', 'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra'], 'dev')
+    'babel-runtime', 'dynamic-cdn-webpack-plugin', 'module-to-cdn', 'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra',
+    'webpack-bundle-analyzer'], 'dev')
 
   bangFile('src/assets/index.html', loadFile('res/ts-react/index.html'))
   bangFile('src/index.tsx', loadFile('res/ts-react/index.tsx'))
@@ -92,9 +93,10 @@ if (argv.react && argv.typescript) {
   bangPackage({
     scripts: {
       'lint': 'tslint --project .',
-      'buildall': 'webpack --env build=dev,release,dev-full,release-full',
+      'build-all': 'webpack --env build=dev,release,dev-full,release-full',
       'build': 'webpack --env build=release',
-      'cleanbuild': 'rm -rf ./dist',
+      'build-analyze': 'webpack --env build=dev --analyze',
+      'build-clean': 'rm -rf ./dist',
       'serve': 'webpack-dev-server --inline --content-base src/'
     }
   })
