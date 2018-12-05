@@ -23,5 +23,12 @@ To develop, run
 
 Above command will launch a web-server, monitor "src/" folder, recompile if any source changes, and then auto refresh the browser.
 
-By default the compiled output contains a single page "index.html".  If it's a multi-page app, then create files with name pattern "page*.tsx" under "src/" folder.  These page files will be compiled along index.tsx and a corresponding 'page*.html' file will also be generated.
+A compile entry point is created for each 'index.tsx' file found (recursively) under src/.  A corresponding 'index.html' is create in the output with same relative path structure, the output ".js" file is placed under root output dir with file name being the direct parent folder name.
+
+For example:
+
+    ./src/admin/index.tsx
+    ==bulid==>
+    ./dist/release/admin/index.html 
+    ./dist/release/admin.js
 

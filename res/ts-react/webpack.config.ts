@@ -26,9 +26,9 @@ const DefaultHtmlTemplate = Path.join(SrcDir, "assets", "index.html");
 // the common base configuration
 const BaseConfig: webpack.Configuration = {
   entry: {
-    "index": Path.join(SrcDir, "index.tsx"),    
   },
   output: {
+    filename: '[name].js'
   },
   //devtool,
   resolve: {
@@ -77,25 +77,29 @@ const cfgMerge = (target, ...src) => {
   });
 }
 
-///////// multi-page support
-// scan for all page*.tsx fiels in src/ dir, set as entries (to be compiled) and also generate a html file for each
+// recursively scan for all index.tsx files in src/ dir, set as entries and also generate a html file for each.
+// Example:
+// src/admin/index.tsx   =>  dist/[target]/admin/index.html,  dist/[target]/admin.js
+// src/admin/stats/index.tsx   =>  dist/[target]/admin/stats/index.html,  dist/[target]/stats.js
 async function injectPages(config: webpack.Configuration): Promise<webpack.Configuration> {
-  let pageFiles = await Glob(Path.join(SrcDir, "**/page*.tsx"));
+  const pageChunks = (await Glob(Path.join(SrcDir, "**/index.tsx"))).reduce((entries, _f)=>{
+    const f = _f.toString();
+    const name = (Path.dirname(f).toLowerCase() == SrcDir.toLowerCase()) ? 'index' : Path.basename(Path.dirname(f));
+    entries.push([name, f]);
+    return entries;
+  }, [])
 
-  let pageEntries = pageFiles.reduce((entries, _f)=> {
-    let f = _f.toString();
-    entries[Path.basename(f, ".tsx")] = f;  // page1: '/path/to/page1.tsx'
+  let pageEntries = pageChunks.reduce((entries, [chunk, file])=> {
+    entries[chunk] = file;
     return entries;
   }, {});
-  let pagePlugins = pageFiles.map((_f)=>{
-    let f = _f.toString();
-    let htmlf = f.slice(SrcDir.length+1).replace(/\.tsx$/i, ".html"); // where to place html in dist output
-    
+
+  let pagePlugins = pageChunks.map(([chunk, file])=>{
+    let htmlf = file.slice(SrcDir.length+1).replace(/\.tsx$/i, ".html"); // where to place html in dist output
     let pluginCfg: any = {
-      chunks: [Path.basename(f, ".tsx")],
+      chunks: [chunk],
       filename: htmlf
     }
-
     // if customized page template exists: name match in src/assets/, then use it, otherwise use fefault
     let htmlTemplate = Path.join(SrcDir, 'assets', htmlf);
     if (Fs.pathExistsSync(htmlTemplate)) { pluginCfg.template = htmlTemplate}
