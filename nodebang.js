@@ -38,6 +38,7 @@ banDir('src/assets')
 banDir('test')
 
 bangPackage({private: true})
+bangFile('LICENSE', loadFile('res/LICENSE'));
 
 if (argv.typescript) {
   bangFile('.gitignore', '.nyc_output\ncoverage/\nnode_modules/\nbower_components/\ndist/')
