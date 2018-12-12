@@ -66,3 +66,6 @@ export const pkger = (cmd: 'install' | 'install-dev' | 'init' | '')=>{
   }
 }
 
+export const loadFile = (relpath: string): string => {
+  return fs.readFileSync(path.resolve(__dirname, "..", relpath)).toString()
+}

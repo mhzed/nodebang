@@ -67,4 +67,7 @@ exports.pkger = (cmd) => {
             throw new Error("invalid " + cmd);
     }
 };
+exports.loadFile = (relpath) => {
+    return fs.readFileSync(path.resolve(__dirname, "..", relpath)).toString();
+};
 //# sourceMappingURL=util.js.map

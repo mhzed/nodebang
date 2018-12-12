@@ -1,3 +1,4 @@
 *.map
-test/.*/**
+.nyc_output/
+test/testproj
 node_modules/
