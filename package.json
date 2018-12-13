@@ -10,7 +10,7 @@
     "tswatch": "tsc --watch"
   },
   "bin": {
-    "nodebang": "src/nodebang.js"
+    "nodebang": "src/bangcli.js"
   },
   "license": "ISC",
   "dependencies": {

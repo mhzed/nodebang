@@ -1,4 +1,4 @@
-import { bangBasic, bangTypescript, bangReact } from "../src/bang";
+import { bangBasic, bangTypescript } from "../src/bang";
 import {  emptyDir, mkdirp } from "fs-extra";
 import { resolve } from "path";
 import { chdir, cwd } from "process";

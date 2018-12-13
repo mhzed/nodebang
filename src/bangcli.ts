@@ -3,7 +3,10 @@ import * as Yargs from "yargs";
 import { bangTypescript, bangBasic, bangReact } from "./bang";
 
 const yargs = Yargs
-  .usage('Usage: $0 [opitons]')
+  .usage(`
+Create typescript project.  
+Usage: $0 [opitons]
+  `)
   .option('react', {
     alias: 'r',
     describe: 'install react for typescript'
@@ -12,11 +15,10 @@ const yargs = Yargs
     alias: 'h',
     describe: 'print help'
   })
-  .help("create typescript project")
 
 const argv = yargs.argv
 if (argv.help) {
-  console.log(yargs.help())
+  yargs.showHelp();
   process.exit(0)
 }
 bangBasic();

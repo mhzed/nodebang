@@ -50,7 +50,9 @@ exports.bangPackage = (props) => {
 };
 let pkg = 'npm';
 if (which.sync('yarn', { nothrow: true }) !== null) {
-    pkg = 'yarn';
+    if (!fs.existsSync("./package-lock.json")) {
+        pkg = 'yarn';
+    }
 }
 ;
 exports.pkger = (cmd) => {

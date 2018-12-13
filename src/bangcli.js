@@ -4,7 +4,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Yargs = require("yargs");
 const bang_1 = require("./bang");
 const yargs = Yargs
-    .usage('Usage: $0 [opitons]')
+    .usage(`
+Create typescript project.  
+Usage: $0 [opitons]
+  `)
     .option('react', {
     alias: 'r',
     describe: 'install react for typescript'
@@ -12,11 +15,10 @@ const yargs = Yargs
     .option('help', {
     alias: 'h',
     describe: 'print help'
-})
-    .help("create typescript project");
+});
 const argv = yargs.argv;
 if (argv.help) {
-    console.log(yargs.help());
+    yargs.showHelp();
     process.exit(0);
 }
 bang_1.bangBasic();
@@ -25,4 +27,4 @@ if (argv.react) {
     bang_1.bangReact();
 }
 console.log('Done');
-//# sourceMappingURL=nodebang.js.map
+//# sourceMappingURL=bangcli.js.map

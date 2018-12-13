@@ -49,7 +49,11 @@ export const bangPackage = (props: any): void => {
 }
 
 let pkg = 'npm';  // defaults to npm
-if (which.sync('yarn', {nothrow: true}) !== null) { pkg = 'yarn'};  // use yarn if available
+if (which.sync('yarn', {nothrow: true}) !== null) { 
+  if (!fs.existsSync("./package-lock.json")) {
+    pkg = 'yarn'
+  }
+};  // use yarn if available
 
 export const pkger = (cmd: 'install' | 'install-dev' | 'init' | '')=>{
   switch (cmd) {
