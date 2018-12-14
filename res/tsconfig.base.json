@@ -11,6 +11,7 @@
       "es2015"
     ],
 
+    "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": true,
     "removeComments": true,
