@@ -14,7 +14,7 @@ export function bangBasic() {
   bangFile('LICENSE', loadFile('res/LICENSE'));
   
   bangFile('.gitignore', '.nyc_output\ncoverage/\nnode_modules/\nbower_components/\ndist/')
-  bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/')
+  bangFile('.npmignore', '.nyc_output\ncoverage/\ntest/\nnode_modules/\nbower_components/\ndist/')
 }
 export function bangTypescript() {
 
@@ -31,7 +31,8 @@ export function bangTypescript() {
     test: "nyc mocha --require ts-node/register test/**/*.ts",
     testcover: "nyc --reporter=lcov mocha --require ts-node/register test/**/*.ts",
     lint: 'tslint --project .',
-    tswatch: "tsc --watch"
+    tswatch: "tsc --watch",
+    repository: ""
   }})  
 }
 
@@ -44,7 +45,8 @@ export function bangReact() {
     'ts-loader', 'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'webpack-cli', 'file-loader', 
     'url-loader', 'style-loader', 'css-loader', 'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin', 
     'copy-webpack-plugin', '@types/lodash-es','lodash', 'babel-runtime', 'dynamic-cdn-webpack-plugin', 'module-to-cdn', 
-    'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra', 'webpack-bundle-analyzer'], 
+    'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra', 'webpack-bundle-analyzer', 
+    'webpack-why-plugin'], 
     'dev')
 
   bangFile('src/assets/index.html', loadFile('res/ts-react/index.html'))

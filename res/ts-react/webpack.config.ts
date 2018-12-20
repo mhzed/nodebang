@@ -7,7 +7,7 @@ import * as Fs from "fs-extra";
 import * as DynamicCdnWebpackPlugin from 'dynamic-cdn-webpack-plugin';
 import * as moduleToCdn from "module-to-cdn";
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-
+import { WebpackWhyPlugin } from "webpack-why-plugin";
 /** 
  * Examples: 
  *    webpack -env build=dev
@@ -156,6 +156,9 @@ async function main(env, arg): Promise<webpack.Configuration[]> {
   let config = await injectPages(BaseConfig);
   if (arg.analyze) {
     config.plugins.push(new BundleAnalyzerPlugin());
+  }
+  if (arg.why) {
+    config.plugins.push(new WebpackWhyPlugin({names: arg.why}));
   }
 
   // clean dist target dir
