@@ -58,7 +58,7 @@ export function bangReact() {
       'lint': 'tslint --project .',
       'build-all': 'webpack --env build=dev,release,dev-full,release-full',
       'build': 'webpack --env build=release',
-      'build-analyze': 'webpack --env build=dev --analyze',
+      'build-analyze': 'webpack --env build=release --analyze',
       'build-clean': 'rm -rf ./dist',
       'serve': 'webpack-dev-server --inline --content-base src/'
     }
