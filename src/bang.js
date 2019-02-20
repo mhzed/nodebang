@@ -14,7 +14,7 @@ function bangBasic() {
     util_1.bangPackage({ private: true });
     util_1.bangFile('LICENSE', util_1.loadFile('res/LICENSE'));
     util_1.bangFile('.gitignore', '.nyc_output\ncoverage/\nnode_modules/\nbower_components/\ndist/');
-    util_1.bangFile('.npmignore', 'test/\nnode_modules/\nbower_components/\ndist/');
+    util_1.bangFile('.npmignore', '.nyc_output\ncoverage/\ntest/\nnode_modules/\nbower_components/\ndist/');
 }
 exports.bangBasic = bangBasic;
 function bangTypescript() {
@@ -30,7 +30,8 @@ function bangTypescript() {
             test: "nyc mocha --require ts-node/register test/**/*.ts",
             testcover: "nyc --reporter=lcov mocha --require ts-node/register test/**/*.ts",
             lint: 'tslint --project .',
-            tswatch: "tsc --watch"
+            tswatch: "tsc --watch",
+            repository: ""
         } });
 }
 exports.bangTypescript = bangTypescript;
@@ -43,7 +44,8 @@ function bangReact() {
         'ts-loader', 'source-map-loader', 'null-loader', 'react-dom', 'webpack-dev-server', 'webpack-cli', 'file-loader',
         'url-loader', 'style-loader', 'css-loader', 'sass-loader', 'node-sass', 'uglifyjs-webpack-plugin',
         'copy-webpack-plugin', '@types/lodash-es', 'lodash', 'babel-runtime', 'dynamic-cdn-webpack-plugin', 'module-to-cdn',
-        'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra', 'webpack-bundle-analyzer'], 'dev');
+        'html-webpack-plugin', 'fast-glob', 'fs-extra', '@types/fs-extra', 'webpack-bundle-analyzer',
+        'webpack-why-plugin'], 'dev');
     util_1.bangFile('src/assets/index.html', util_1.loadFile('res/ts-react/index.html'));
     util_1.bangFile('src/index.tsx', util_1.loadFile('res/ts-react/index.tsx'));
     util_1.bangFile('src/app.tsx', util_1.loadFile('res/ts-react/app.tsx'));
@@ -53,7 +55,7 @@ function bangReact() {
             'lint': 'tslint --project .',
             'build-all': 'webpack --env build=dev,release,dev-full,release-full',
             'build': 'webpack --env build=release',
-            'build-analyze': 'webpack --env build=dev --analyze',
+            'build-analyze': 'webpack --env build=release --analyze',
             'build-clean': 'rm -rf ./dist',
             'serve': 'webpack-dev-server --inline --content-base src/'
         }

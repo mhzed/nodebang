@@ -3,28 +3,51 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Yargs = require("yargs");
 const bang_1 = require("./bang");
+const bangPython_1 = require("./bangPython");
 const yargs = Yargs
     .usage(`
-Create typescript project.  
-Usage: $0 [opitons]
+Create typescript/python project.  
+Usage: nodebang [opitons] dir
   `)
+    .option('ts', {
+    alias: 't',
+    describe: 'create typescript project',
+    boolean: true
+})
     .option('react', {
     alias: 'r',
-    describe: 'install react for typescript'
+    describe: 'install react for typescript',
+    boolean: true
+})
+    .option('py', {
+    alias: 'p',
+    describe: 'create python project',
+    boolean: true
 })
     .option('help', {
     alias: 'h',
-    describe: 'print help'
+    describe: 'print help',
+    boolean: true
 });
 const argv = yargs.argv;
-if (argv.help) {
+if (argv.help || argv._.length != 1) {
     yargs.showHelp();
     process.exit(0);
 }
-bang_1.bangBasic();
-bang_1.bangTypescript();
-if (argv.react) {
-    bang_1.bangReact();
+const [dir] = argv._;
+process.chdir(dir);
+if (argv.py) {
+    bangPython_1.bangPython();
 }
-console.log('Done');
+else if (argv.ts) {
+    bang_1.bangBasic();
+    bang_1.bangTypescript();
+    if (argv.react) {
+        bang_1.bangReact();
+    }
+}
+else {
+    yargs.showHelp();
+    process.exit(0);
+}
 //# sourceMappingURL=bangcli.js.map
