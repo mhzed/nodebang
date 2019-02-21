@@ -15,7 +15,8 @@ export function bangPython() {
 
   console.log('Initializing for python')
   execSync("pipenv check");
-  bangFile('lib/module.py', '')
+  bangFile('__init__.py', "");
+  bangFile('lib/module.py', '');
   bangFile("lib/__init__.py", "");
   bangFile("tests/__init__.py", "");
   bangFile('tests/test.py', `

@@ -13,6 +13,7 @@ function bangPython() {
     util_1.bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__');
     console.log('Initializing for python');
     child_process_1.execSync("pipenv check");
+    util_1.bangFile('__init__.py', "");
     util_1.bangFile('lib/module.py', '');
     util_1.bangFile("lib/__init__.py", "");
     util_1.bangFile("tests/__init__.py", "");
