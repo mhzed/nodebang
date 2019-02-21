@@ -6,6 +6,10 @@ const util_1 = require("./util");
 const which = require("which");
 function bangPython() {
     const pythonBin = which.sync('python', { nothrow: true });
+    if (pythonBin == null) {
+        console.log("Can't explode: where is python?");
+        return;
+    }
     const pythonPath = path.dirname(pythonBin);
     console.log(`Using python at ${pythonBin}`);
     let pipEnvBin = which.sync("pipenv", { nothrow: true });

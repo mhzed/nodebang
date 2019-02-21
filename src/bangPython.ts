@@ -4,8 +4,17 @@ import { execSync } from 'child_process';
 import { banDir, bangFile, loadFile, bangJSON } from "./util";
 import * as which from "which";
 
+/** 
+ * https://packaging.python.org/tutorials/installing-packages/
+ * https://docs.python.org/3/tutorial/modules.html
+ * 
+*/
 export function bangPython() {
   const pythonBin = which.sync('python', {nothrow: true});
+  if (pythonBin == null) {
+    console.log("Can't explode: where is python?");
+    return;
+  }
   const pythonPath = path.dirname(pythonBin);
   console.log(`Using python at ${pythonBin}`);
 
