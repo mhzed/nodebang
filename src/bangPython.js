@@ -8,6 +8,14 @@ function bangPython() {
     const pythonBin = which.sync('python', { nothrow: true });
     const pythonPath = path.dirname(pythonBin);
     console.log(`Using python at ${pythonBin}`);
+    let pipEnvBin = which.sync("pipenv", { nothrow: true });
+    if (pipEnvBin == null) {
+        console.log("Installing pipenv for user via --user");
+        child_process_1.execSync("pip install --user pipenv");
+        const localPath = child_process_1.execSync(`python3 -c 'import site; print(site.USER_BASE)'`).toString();
+        pipEnvBin = path.join(localPath, "bin", "pipenv");
+        console.log(`pipenv installed at ${pipEnvBin}`);
+    }
     let name = path.basename(process.cwd());
     let author = "mhzed";
     let authorEmail = "minhongz@gmail.com";
@@ -17,7 +25,7 @@ function bangPython() {
     util_1.bangFile('LICENSE', util_1.loadFile('res/LICENSE'));
     util_1.bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__');
     console.log('Initializing pipenv');
-    child_process_1.execSync("pipenv install pylint --dev");
+    child_process_1.execSync(`${pipEnvBin} install pylint --dev`);
     util_1.bangFile('__init__.py', "");
     util_1.bangFile('lib/module.py', '""" doc """\nv = 1\n');
     util_1.bangFile("lib/__init__.py", "");
@@ -72,9 +80,9 @@ setuptools.setup(
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,
         "python.linting.pylintArgs": ["--enable=all",
-            "--variable-rgx=^[a-z][a-z0-9]*((_[a-z0-9]+)*)?$",
-            "--argument-rgx=^[a-z][a-z0-9]*((_[a-z0-9]+)*)?$",
-            "--function-rgx=^[a-z][a-z0-9]*((_[a-z0-9]+)*)?$",
+            "--variable-rgx=^[a-z][a-zA-Z0-9_]*$",
+            "--argument-rgx=^[a-z][a-zA-Z0-9_]*$",
+            "--function-rgx=^[a-z][a-zA-Z0-9_]*$",
             "--indent-string=\"  \""],
         "python.pythonPath": `${pythonBin}`,
         "python.linting.pylintPath": `${pythonPath}/pylint`

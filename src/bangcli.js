@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Yargs = require("yargs");
 const bang_1 = require("./bang");
 const bangPython_1 = require("./bangPython");
+const fse = require("fs-extra");
 const yargs = Yargs
     .usage(`
 Create typescript/python project.  
@@ -35,7 +36,9 @@ if (argv.help || argv._.length != 1) {
     process.exit(0);
 }
 const [dir] = argv._;
+fse.mkdirpSync(dir);
 process.chdir(dir);
+console.log(`\nExploding in dir ${process.cwd()}`);
 if (argv.py) {
     bangPython_1.bangPython();
 }

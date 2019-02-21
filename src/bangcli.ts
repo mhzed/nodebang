@@ -2,6 +2,7 @@
 import * as Yargs from "yargs";
 import { bangTypescript, bangBasic, bangReact } from "./bang";
 import { bangPython } from "./bangPython";
+import * as fse from "fs-extra";
 const yargs = Yargs
   .usage(`
 Create typescript/python project.  
@@ -34,7 +35,9 @@ if (argv.help || argv._.length != 1) {
   process.exit(0)
 }
 const [dir] = argv._;
+fse.mkdirpSync(dir);
 process.chdir(dir);
+console.log(`\nExploding in dir ${process.cwd()}`)
 if (argv.py) {
   bangPython();
 } else if (argv.ts) {
