@@ -92,7 +92,7 @@ setuptools.setup(
 
   
   bangJSON(".vscode/settings.json", {
-    "python.linting.enabled": true,
+    "python.linting.enabled": false,
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": ["--enable=all", 
       "--variable-rgx=^[a-z][a-zA-Z0-9_]*$",
