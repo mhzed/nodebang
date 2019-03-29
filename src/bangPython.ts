@@ -38,7 +38,7 @@ export function bangPython() {
   bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__')
 
   console.log('Initializing pipenv')
-  execSync(`${pipEnvBin} install pylint autopep8 --dev`);
+  execSync(`${pipEnvBin} install flake8 autopep8 --dev`);
   bangFile('__init__.py', "");
   bangFile('lib/module.py', '""" doc """\nv = 1\n');
   bangFile("lib/__init__.py", "");
@@ -92,15 +92,16 @@ setuptools.setup(
 
   
   bangJSON(".vscode/settings.json", {
-    "python.linting.enabled": false,
-    "python.linting.pylintEnabled": true,
-    "python.linting.pylintArgs": ["--enable=all", 
-      "--variable-rgx=^[a-z][a-zA-Z0-9_]*$",
-      "--argument-rgx=^[a-z][a-zA-Z0-9_]*$",
-      "--function-rgx=^[a-z][a-zA-Z0-9_]*$",
-      "--indent-string=\"  \""],
-    "python.pythonPath": `${pythonBin}`,
-    "python.linting.pylintPath": `${pythonPath}/pylint`,
-    "python.formatting.autopep8Args": ["--max-line-length", "80", "--indent-size", "2"]
+    "python.linting.enabled": true,
+    "python.formatting.autopep8Args": [
+      "--max-line-length",
+      "80",
+      "--indent-size",
+      "2"
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+      "--ignore=E111,E501,E114,E265"
+    ]
   });
 }
