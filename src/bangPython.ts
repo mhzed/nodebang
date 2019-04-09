@@ -35,24 +35,32 @@ export function bangPython() {
   banDir('.vscode')
   banDir('tests')
   bangFile('LICENSE', loadFile('res/LICENSE'));  
-  bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__')
+  bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__\nhtmlcov/\n.pytest_cache/')
 
   console.log('Initializing pipenv')
-  execSync(`${pipEnvBin} install flake8 autopep8 --dev`);
+  execSync(`${pipEnvBin} install flake8 autopep8 pytest pytest-cov --dev`);
   bangFile('__init__.py', "");
   bangFile('lib/module.py', '""" doc """\nv = 1\n');
   bangFile("lib/__init__.py", "");
   bangFile("tests/__init__.py", "");
-  bangFile('tests/test.py', `
+  bangFile('tests/test_random.py', `
 """ pydoc """
-import unittest
-import lib.module
+import time
+import pytest
 
-class MyTest(unittest.TestCase):
-  """ pydoc """
-  def test(self):
-    """ pydoc """
-    self.assertEqual(lib.module.v, 1)
+# https://docs.pytest.org/en/latest/fixture.html
+@pytest.fixture(scope="module")
+def provide_fixture():
+  try:
+    yield {'conn': 1, 'alchemy': 2}  # provide the fixture value
+  finally:
+    print("teardown postgres")
+
+def test_run(provide_fixture):
+  conn = provide_fixture['conn']
+  alchemy = provide_fixture['alchemy']
+  time.sleep(1)
+
   `)
   bangFile("main.py", `import lib.module`)
   bangFile('setup.py', `
