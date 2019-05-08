@@ -26,7 +26,7 @@ export function bangTypescript() {
   bangFile('index.ts', '')
   bangFile('test/test.ts', loadFile('res/test.ts'))
   bangModules(['typescript', '@types/node', 'ts-node', 'mocha', '@types/mocha', 
-    'source-map-support', 'tslint', 'nyc', 'should'], 'dev')
+    'source-map-support', 'tslint', 'nyc', 'should', 'tslint-microsoft-contrib'], 'dev')
   bangPackage({scripts: {
     test: "nyc mocha --require ts-node/register test/**/*.ts",
     testcover: "nyc --reporter=lcov mocha --require ts-node/register test/**/*.ts",

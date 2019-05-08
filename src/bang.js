@@ -25,7 +25,7 @@ function bangTypescript() {
     util_1.bangFile('index.ts', '');
     util_1.bangFile('test/test.ts', util_1.loadFile('res/test.ts'));
     util_1.bangModules(['typescript', '@types/node', 'ts-node', 'mocha', '@types/mocha',
-        'source-map-support', 'tslint', 'nyc', 'should'], 'dev');
+        'source-map-support', 'tslint', 'nyc', 'should', 'tslint-microsoft-contrib'], 'dev');
     util_1.bangPackage({ scripts: {
             test: "nyc mocha --require ts-node/register test/**/*.ts",
             testcover: "nyc --reporter=lcov mocha --require ts-node/register test/**/*.ts",
