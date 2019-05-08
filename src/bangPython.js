@@ -10,7 +10,6 @@ function bangPython() {
         console.log("Can't explode: where is python?");
         return;
     }
-    const pythonPath = path.dirname(pythonBin);
     console.log(`Using python at ${pythonBin}`);
     let pipEnvBin = which.sync("pipenv", { nothrow: true });
     if (pipEnvBin == null) {
@@ -27,23 +26,30 @@ function bangPython() {
     util_1.banDir('.vscode');
     util_1.banDir('tests');
     util_1.bangFile('LICENSE', util_1.loadFile('res/LICENSE'));
-    util_1.bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__');
+    util_1.bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__\nhtmlcov/\n.pytest_cache/');
     console.log('Initializing pipenv');
-    child_process_1.execSync(`${pipEnvBin} install pylint --dev`);
+    child_process_1.execSync(`${pipEnvBin} install flake8 autopep8 pytest pytest-cov --dev`);
     util_1.bangFile('__init__.py', "");
-    util_1.bangFile('lib/module.py', '""" doc """\nv = 1\n');
     util_1.bangFile("lib/__init__.py", "");
     util_1.bangFile("tests/__init__.py", "");
-    util_1.bangFile('tests/test.py', `
+    util_1.bangFile('tests/test_random.py', `
 """ pydoc """
-import unittest
-import lib.module
+import time
+import pytest
 
-class MyTest(unittest.TestCase):
-  """ pydoc """
-  def test(self):
-    """ pydoc """
-    self.assertEqual(lib.module.v, 1)
+# https://docs.pytest.org/en/latest/fixture.html
+@pytest.fixture(scope="module")
+def provide_fixture():
+  try:
+    yield {'conn': 1, 'alchemy': 2}  # provide the fixture value
+  finally:
+    print("teardown postgres")
+
+def test_run(provide_fixture):
+  conn = provide_fixture['conn']
+  alchemy = provide_fixture['alchemy']
+  time.sleep(1)
+
   `);
     util_1.bangFile("main.py", `import lib.module`);
     util_1.bangFile('setup.py', `
@@ -80,16 +86,21 @@ setuptools.setup(
     `;
         return name + '\n--------\n' + content;
     });
+    const venvPath = child_process_1.execSync(`${pipEnvBin} --venv`).toString().trim();
     util_1.bangJSON(".vscode/settings.json", {
+        "python.pythonPath": `${venvPath}/bin/python`,
+        "python.venvPath": `${path.dirname(venvPath)}`,
         "python.linting.enabled": true,
-        "python.linting.pylintEnabled": true,
-        "python.linting.pylintArgs": ["--enable=all",
-            "--variable-rgx=^[a-z][a-zA-Z0-9_]*$",
-            "--argument-rgx=^[a-z][a-zA-Z0-9_]*$",
-            "--function-rgx=^[a-z][a-zA-Z0-9_]*$",
-            "--indent-string=\"  \""],
-        "python.pythonPath": `${pythonBin}`,
-        "python.linting.pylintPath": `${pythonPath}/pylint`
+        "python.formatting.autopep8Args": [
+            "--max-line-length",
+            "80",
+            "--indent-size",
+            "2"
+        ],
+        "python.linting.flake8Enabled": true,
+        "python.linting.flake8Args": [
+            "--ignore=E111,E501,E114,E265"
+        ]
     });
 }
 exports.bangPython = bangPython;

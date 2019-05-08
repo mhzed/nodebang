@@ -4,6 +4,7 @@ import { execSync } from 'child_process';
 import { banDir, bangFile, loadFile, bangJSON } from "./util";
 import * as which from "which";
 
+
 /** 
  * https://packaging.python.org/tutorials/installing-packages/
  * https://docs.python.org/3/tutorial/modules.html
@@ -15,7 +16,6 @@ export function bangPython() {
     console.log("Can't explode: where is python?");
     return;
   }
-  const pythonPath = path.dirname(pythonBin);
   console.log(`Using python at ${pythonBin}`);
 
   let pipEnvBin = which.sync("pipenv", {nothrow: true});
@@ -40,7 +40,6 @@ export function bangPython() {
   console.log('Initializing pipenv')
   execSync(`${pipEnvBin} install flake8 autopep8 pytest pytest-cov --dev`);
   bangFile('__init__.py', "");
-  bangFile('lib/module.py', '""" doc """\nv = 1\n');
   bangFile("lib/__init__.py", "");
   bangFile("tests/__init__.py", "");
   bangFile('tests/test_random.py', `
@@ -99,7 +98,11 @@ setuptools.setup(
   });
 
   
+  const venvPath = execSync(`${pipEnvBin} --venv`).toString().trim();
+
   bangJSON(".vscode/settings.json", {
+    "python.pythonPath": `${venvPath}/bin/python`,
+    "python.venvPath": `${path.dirname(venvPath)}`,
     "python.linting.enabled": true,
     "python.formatting.autopep8Args": [
       "--max-line-length",
