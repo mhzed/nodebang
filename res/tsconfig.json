@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
-  "compileOnSave": true,
   "compilerOptions": {
-    "module": "commonjs"
+    "module": "commonjs",
+    "watch": true
   }
 }
