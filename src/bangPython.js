@@ -80,9 +80,9 @@ setuptools.setup(
 ## Misc commands
 
     #To run tests:
-    python -m unittest discover
+    pipenv run python -m pytest
     #To package: 
-    python3 setup.py sdist bdist_wheel  
+    pipenv run python setup.py sdist bdist_wheel  
     `;
         return name + '\n--------\n' + content;
     });
