@@ -5,6 +5,7 @@ const Yargs = require("yargs");
 const bang_1 = require("./bang");
 const bangPython_1 = require("./bangPython");
 const fse = require("fs-extra");
+const bangJava_1 = require("./bangJava");
 const yargs = Yargs
     .usage(`
 Create typescript/python project.  
@@ -25,6 +26,11 @@ Usage: nodebang [opitons] dir
     describe: 'create python project',
     boolean: true
 })
+    .option('java', {
+    alias: 'j',
+    describe: 'create java(maven) project',
+    boolean: true
+})
     .option('help', {
     alias: 'h',
     describe: 'print help',
@@ -39,7 +45,10 @@ const [dir] = argv._;
 fse.mkdirpSync(dir);
 process.chdir(dir);
 console.log(`\nExploding in dir ${process.cwd()}`);
-if (argv.py) {
+if (argv.java) {
+    bangJava_1.bangJava();
+}
+else if (argv.py) {
     bangPython_1.bangPython();
 }
 else if (argv.ts) {

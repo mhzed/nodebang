@@ -3,6 +3,7 @@ import * as path from "path";
 import { execSync } from 'child_process';
 import * as merge from "lodash.merge";
 import * as which from "which";
+
 export const bangFile = (fname: string, fcontent: string | (()=>string) ): void => {
   'use strict'
   if (!fs.existsSync(fname)) {

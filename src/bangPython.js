@@ -51,7 +51,7 @@ def test_run(provide_fixture):
   time.sleep(1)
 
   `);
-    util_1.bangFile("main.py", `import lib.module`);
+    util_1.bangFile("main.py", ``);
     util_1.bangFile('setup.py', `
 import setuptools
 

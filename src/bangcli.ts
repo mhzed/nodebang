@@ -3,6 +3,7 @@ import * as Yargs from "yargs";
 import { bangTypescript, bangBasic, bangReact } from "./bang";
 import { bangPython } from "./bangPython";
 import * as fse from "fs-extra";
+import { bangJava } from "./bangJava";
 const yargs = Yargs
   .usage(`
 Create typescript/python project.  
@@ -23,6 +24,11 @@ Usage: nodebang [opitons] dir
     describe: 'create python project',
     boolean: true
   })
+  .option('java', {
+    alias: 'j',
+    describe: 'create java(maven) project',
+    boolean: true
+  })
   .option('help', {
     alias: 'h',
     describe: 'print help',
@@ -38,14 +44,16 @@ const [dir] = argv._;
 fse.mkdirpSync(dir);
 process.chdir(dir);
 console.log(`\nExploding in dir ${process.cwd()}`)
-if (argv.py) {
+if (argv.java) {
+  bangJava();
+} else if (argv.py) {
   bangPython();
 } else if (argv.ts) {
   bangBasic();
   bangTypescript();
   if (argv.react) {
-    bangReact(); 
-  }  
+    bangReact();
+  }
 } else {
   yargs.showHelp();
   process.exit(0)
