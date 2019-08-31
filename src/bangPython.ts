@@ -1,48 +1,53 @@
 // import * as fs from "fs";
 import * as path from "path";
-import { execSync } from 'child_process';
+import { execSync } from "child_process";
 import { banDir, bangFile, loadFile, bangJSON } from "./util";
 import * as which from "which";
 
-
-/** 
+/**
  * https://packaging.python.org/tutorials/installing-packages/
  * https://docs.python.org/3/tutorial/modules.html
- * 
-*/
+ *
+ */
 export function bangPython() {
-  const pythonBin = which.sync('python', {nothrow: true});
+  const pythonBin = which.sync("python", { nothrow: true });
   if (pythonBin == null) {
     console.log("Can't explode: where is python?");
     return;
   }
   console.log(`Using python at ${pythonBin}`);
 
-  let pipEnvBin = which.sync("pipenv", {nothrow: true});
+  let pipEnvBin = which.sync("pipenv", { nothrow: true });
   if (pipEnvBin == null) {
     console.log("Installing pipenv for user via --user");
     execSync("pip install --user pipenv");
-    const localPath = execSync(`python3 -c 'import site; print(site.USER_BASE)'`).toString();
+    const localPath = execSync(
+      `python3 -c 'import site; print(site.USER_BASE)'`
+    ).toString();
     pipEnvBin = path.join(localPath, "bin", "pipenv");
     console.log(`pipenv installed at ${pipEnvBin}`);
   }
-  
-  let name = path.basename(process.cwd())
+
+  let name = path.basename(process.cwd());
   let author = "mhzed";
   let authorEmail = "minhongz@gmail.com";
 
-  banDir('lib')
-  banDir('.vscode')
-  banDir('tests')
-  bangFile('LICENSE', loadFile('res/LICENSE'));  
-  bangFile('.gitignore', 'dist/\nbuild/\n*.egg-info/\n__pycache__\nhtmlcov/\n.pytest_cache/')
+  banDir("lib");
+  banDir(".vscode");
+  banDir("tests");
+  bangFile("LICENSE", loadFile("res/LICENSE"));
+  bangFile(
+    ".gitignore",
+    "dist/\nbuild/\n*.egg-info/\n__pycache__\nhtmlcov/\n.pytest_cache/"
+  );
 
-  console.log('Initializing pipenv')
+  console.log("Initializing pipenv");
   execSync(`${pipEnvBin} install flake8 autopep8 pytest pytest-cov --dev`);
-  bangFile('__init__.py', "");
   bangFile("lib/__init__.py", "");
   bangFile("tests/__init__.py", "");
-  bangFile('tests/test_random.py', `
+  bangFile(
+    "tests/test_random.py",
+    `
 """ pydoc """
 import time
 import pytest
@@ -60,9 +65,12 @@ def test_run(provide_fixture):
   alchemy = provide_fixture['alchemy']
   time.sleep(1)
 
-  `)
-  bangFile("main.py", ``)
-  bangFile('setup.py', `
+  `
+  );
+  bangFile("main.py", ``);
+  bangFile(
+    "setup.py",
+    `
 import setuptools
 
 with open("README.md", "r") as fh:
@@ -84,8 +92,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
 )  
-  `)
-  bangFile('README.md', () => {
+  `
+  );
+  bangFile("README.md", () => {
     let content = `
 ## Misc commands
 
@@ -94,11 +103,12 @@ setuptools.setup(
     #To package: 
     pipenv run python setup.py sdist bdist_wheel  
     `;
-    return name + '\n--------\n' + content;
+    return name + "\n--------\n" + content;
   });
 
-  
-  const venvPath = execSync(`${pipEnvBin} --venv`).toString().trim();
+  const venvPath = execSync(`${pipEnvBin} --venv`)
+    .toString()
+    .trim();
 
   bangJSON(".vscode/settings.json", {
     "python.pythonPath": `${venvPath}/bin/python`,
@@ -111,8 +121,6 @@ setuptools.setup(
       "2"
     ],
     "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-      "--ignore=E111,E501,E114,E265"
-    ]
+    "python.linting.flake8Args": ["--ignore=E111,E501,E114,E265"]
   });
 }
